@@ -4,3 +4,31 @@ CREATE TABLE "users" (
 	"email" VARCHAR(40) NOT NULL UNIQUE,
 	"password" VARCHAR(255) NOT NULL
 );
+
+CREATE TABLE "tasks" (
+  "id" SERIAL PRIMARY KEY,
+  "user_id" INTEGER REFERENCES users(id),
+  "name" TEXT NOT NULL,
+  "task" TEXT NOT NULL,
+  "area" TEXT NOT NULL,
+  "startsAt" TIMESTAMP NOT NULL,
+  "endsAt" TIMESTAMP,
+  "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  "tools" JSONB NOT NULL
+);
+
+
+CREATE OR REPLACE FUNCTION update_tasks_updatedat_column()
+RETURNS TRIGGER AS $$
+BEGIN
+	NEW.updateAt = CURRENT_TIMESTAMP;
+	RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER update_tasks_updatedat
+BEFORE UPDATE ON tasks
+FOR EACH ROW
+EXECUTE FUNCTION update_tasks_updatedat_column();
+
